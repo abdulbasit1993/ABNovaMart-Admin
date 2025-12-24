@@ -18,16 +18,32 @@ import Blank from "./pages/Blank";
 import AppLayout from "./layout/AppLayout";
 import { ScrollToTop } from "./components/common/ScrollToTop";
 import Home from "./pages/Dashboard/Home";
+import { useSelector } from 'react-redux';
+import { Navigate } from "react-router";
+import { ToastContainer, toast } from 'react-toastify';
 
 export default function App() {
+
+  const { isAuthenticated } = useSelector((state) => state.auth);
+
   return (
     <>
       <Router>
         <ScrollToTop />
         <Routes>
-          {/* Dashboard Layout */}
+
+          <Route
+            path="/"
+            element={!isAuthenticated ? <SignIn /> : <Navigate to="/dashboard" />}
+          />
+
+          <Route path="/signup" element={<SignUp />} />
+
+          {/* Protected Dashboard Layout */}
+
+          {isAuthenticated ? (
           <Route element={<AppLayout />}>
-            <Route index path="/" element={<Home />} />
+            <Route index path="/dashboard" element={<Home />} />
 
             {/* Others Page */}
             <Route path="/profile" element={<UserProfiles />} />
@@ -52,15 +68,16 @@ export default function App() {
             <Route path="/line-chart" element={<LineChart />} />
             <Route path="/bar-chart" element={<BarChart />} />
           </Route>
-
-          {/* Auth Layout */}
-          <Route path="/signin" element={<SignIn />} />
-          <Route path="/signup" element={<SignUp />} />
+          ) : (
+            <Route path="*" element={<Navigate to="/" />} />
+          )}
 
           {/* Fallback Route */}
           <Route path="*" element={<NotFound />} />
         </Routes>
       </Router>
+
+      <ToastContainer />
     </>
   );
 }

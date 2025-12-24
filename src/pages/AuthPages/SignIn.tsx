@@ -1,8 +1,23 @@
 import PageMeta from "../../components/common/PageMeta";
 import AuthLayout from "./AuthPageLayout";
 import SignInForm from "../../components/auth/SignInForm";
+import apiClient from "../../api/axiosInstance";
+import { toast } from "react-toastify";
 
 export default function SignIn() {
+
+  const handleSignIn = async (data: { email: string; password: string }) => {
+    console.log('sign in data ===>> ', data)
+
+    try {
+      const loginResp = await apiClient.post('/auth/login', data);
+
+      console.log('response from login API ===>> ', loginResp)
+    } catch (error) {
+      console.log('Error signing in ==>> ', error)
+    }
+  }
+
   return (
     <>
       <PageMeta
@@ -10,7 +25,7 @@ export default function SignIn() {
         description="This is React.js SignIn Tables Dashboard page for TailAdmin - React.js Tailwind CSS Admin Dashboard Template"
       />
       <AuthLayout>
-        <SignInForm />
+        <SignInForm onSubmit={handleSignIn} />
       </AuthLayout>
     </>
   );

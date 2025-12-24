@@ -1,4 +1,5 @@
 import axios from "axios";
+import { toast } from "react-toastify";
 
 const apiClient = axios.create({
     baseURL: "http://localhost:3002/api",
@@ -24,6 +25,7 @@ apiClient.interceptors.request.use(
 
 apiClient.interceptors.response.use(
     (response) => {
+        console.log('axios inteceptpr response ===>> ', response)
         return response
     },
     async (error) => {
@@ -41,6 +43,16 @@ apiClient.interceptors.response.use(
 
 
         }
+
+        const errorMessage = error.response?.data?.message || error.message || "An unexpected error occurred";
+
+        const finalMessage = Array.isArray(errorMessage) 
+            ? errorMessage[0] 
+            : errorMessage;
+
+    console.log('finalMessage ==>> ', finalMessage)
+
+        toast.error(finalMessage);
 
         return Promise.reject(error);
     }
