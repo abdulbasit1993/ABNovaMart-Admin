@@ -18,12 +18,13 @@ import Blank from "./pages/Blank";
 import AppLayout from "./layout/AppLayout";
 import { ScrollToTop } from "./components/common/ScrollToTop";
 import Home from "./pages/Dashboard/Home";
-import { useSelector } from 'react-redux';
+import { useSelector } from "react-redux";
 import { Navigate } from "react-router";
-import { ToastContainer, toast } from 'react-toastify';
+import { ToastContainer, toast } from "react-toastify";
+import ProtectedRoute from "./components/ProtectedRoute";
+import Products from "./pages/Products";
 
 export default function App() {
-
   const { isAuthenticated } = useSelector((state) => state.auth);
 
   return (
@@ -31,43 +32,66 @@ export default function App() {
       <Router>
         <ScrollToTop />
         <Routes>
-
           <Route
             path="/"
-            element={!isAuthenticated ? <SignIn /> : <Navigate to="/dashboard" />}
+            element={
+              !isAuthenticated ? <SignIn /> : <Navigate to="/dashboard" />
+            }
           />
 
-          <Route path="/signup" element={<SignUp />} />
+          <Route
+            path="/signup"
+            element={
+              !isAuthenticated ? <SignUp /> : <Navigate to="/dashboard" />
+            }
+          />
 
           {/* Protected Dashboard Layout */}
 
           {isAuthenticated ? (
-          <Route element={<AppLayout />}>
-            <Route index path="/dashboard" element={<Home />} />
+            <Route element={<AppLayout />}>
+              <Route
+                index
+                path="/dashboard"
+                element={
+                  <ProtectedRoute>
+                    <Home />
+                  </ProtectedRoute>
+                }
+              />
 
-            {/* Others Page */}
-            <Route path="/profile" element={<UserProfiles />} />
-            <Route path="/calendar" element={<Calendar />} />
-            <Route path="/blank" element={<Blank />} />
+              <Route
+                path="/products"
+                element={
+                  <ProtectedRoute>
+                    <Products />
+                  </ProtectedRoute>
+                }
+              />
 
-            {/* Forms */}
-            <Route path="/form-elements" element={<FormElements />} />
+              {/* Others Page */}
+              <Route path="/profile" element={<UserProfiles />} />
+              <Route path="/calendar" element={<Calendar />} />
+              <Route path="/blank" element={<Blank />} />
 
-            {/* Tables */}
-            <Route path="/basic-tables" element={<BasicTables />} />
+              {/* Forms */}
+              <Route path="/form-elements" element={<FormElements />} />
 
-            {/* Ui Elements */}
-            <Route path="/alerts" element={<Alerts />} />
-            <Route path="/avatars" element={<Avatars />} />
-            <Route path="/badge" element={<Badges />} />
-            <Route path="/buttons" element={<Buttons />} />
-            <Route path="/images" element={<Images />} />
-            <Route path="/videos" element={<Videos />} />
+              {/* Tables */}
+              <Route path="/basic-tables" element={<BasicTables />} />
 
-            {/* Charts */}
-            <Route path="/line-chart" element={<LineChart />} />
-            <Route path="/bar-chart" element={<BarChart />} />
-          </Route>
+              {/* Ui Elements */}
+              <Route path="/alerts" element={<Alerts />} />
+              <Route path="/avatars" element={<Avatars />} />
+              <Route path="/badge" element={<Badges />} />
+              <Route path="/buttons" element={<Buttons />} />
+              <Route path="/images" element={<Images />} />
+              <Route path="/videos" element={<Videos />} />
+
+              {/* Charts */}
+              <Route path="/line-chart" element={<LineChart />} />
+              <Route path="/bar-chart" element={<BarChart />} />
+            </Route>
           ) : (
             <Route path="*" element={<Navigate to="/" />} />
           )}

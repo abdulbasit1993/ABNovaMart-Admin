@@ -14,6 +14,7 @@ import {
   PlugInIcon,
   TableIcon,
   UserCircleIcon,
+  PackageIcon,
 } from "../icons";
 import { useSidebar } from "../context/SidebarContext";
 import SidebarWidget from "./SidebarWidget";
@@ -30,6 +31,11 @@ const navItems: NavItem[] = [
     icon: <GridIcon />,
     name: "Dashboard",
     subItems: [{ name: "Ecommerce", path: "/", pro: false }],
+  },
+  {
+    icon: <PackageIcon />,
+    name: "Products",
+    path: "/products",
   },
   {
     icon: <CalenderIcon />,
@@ -306,7 +312,7 @@ const AppSidebar: React.FC = () => {
         <Link to="/">
           {isExpanded || isHovered || isMobileOpen ? (
             <>
-              <img
+              {/* <img
                 className="dark:hidden"
                 src="/images/logo/logo.svg"
                 alt="Logo"
@@ -319,7 +325,10 @@ const AppSidebar: React.FC = () => {
                 alt="Logo"
                 width={150}
                 height={40}
-              />
+              /> */}
+              <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
+                ABNovaMart Admin
+              </h1>
             </>
           ) : (
             <img

@@ -25,7 +25,6 @@ apiClient.interceptors.request.use(
 
 apiClient.interceptors.response.use(
     (response) => {
-        console.log('axios inteceptpr response ===>> ', response)
         return response
     },
     async (error) => {

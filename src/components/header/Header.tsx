@@ -79,16 +79,18 @@ const Header: React.FC<HeaderProps> = ({ onClick, onToggle }) => {
           </button>
 
           <Link to="/" className="lg:hidden">
-            <img
+            {/* <img
               className="dark:hidden"
               src="./images/logo/logo.svg"
               alt="Logo"
-            />
-            <img
+            /> */}
+            {/* <img
               className="hidden dark:block"
               src="./images/logo/logo-dark.svg"
               alt="Logo"
-            />
+            /> */}
+
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">ABNovaMart Admin</h1>
           </Link>
 
           <button

@@ -1,13 +1,16 @@
 import { useEffect, useRef, useState } from "react";
 
-import { Link } from "react-router";
+import { Link, useNavigate } from "react-router";
 import { useSidebar } from "../context/SidebarContext";
 import { ThemeToggleButton } from "../components/common/ThemeToggleButton";
 import NotificationDropdown from "../components/header/NotificationDropdown";
 import UserDropdown from "../components/header/UserDropdown";
+import ConfirmModal from "../components/modal/ConfirmModal";
 
 const AppHeader: React.FC = () => {
+  const navigate = useNavigate();
   const [isApplicationMenuOpen, setApplicationMenuOpen] = useState(false);
+  const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
 
   const { isMobileOpen, toggleSidebar, toggleMobileSidebar } = useSidebar();
 
@@ -24,6 +27,13 @@ const AppHeader: React.FC = () => {
   };
 
   const inputRef = useRef<HTMLInputElement>(null);
+
+  function handleLogout() {
+    setIsConfirmModalOpen(false);
+    window.localStorage.removeItem("authToken");
+    window.localStorage.removeItem("user");
+    window.location.reload();
+  }
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -84,16 +94,20 @@ const AppHeader: React.FC = () => {
           </button>
 
           <Link to="/" className="lg:hidden">
-            <img
+            {/* <img
               className="dark:hidden"
               src="./images/logo/logo.svg"
               alt="Logo"
-            />
-            <img
+            /> */}
+            {/* <img
               className="hidden dark:block"
               src="./images/logo/logo-dark.svg"
               alt="Logo"
-            />
+            /> */}
+
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
+              ABNovaMart Admin
+            </h1>
           </Link>
 
           <button
@@ -164,9 +178,21 @@ const AppHeader: React.FC = () => {
             {/* <!-- Notification Menu Area --> */}
           </div>
           {/* <!-- User Area --> */}
-          <UserDropdown />
+          <UserDropdown
+            onLogout={() => {
+              setIsConfirmModalOpen(true);
+            }}
+          />
         </div>
       </div>
+
+      <ConfirmModal
+        isOpen={isConfirmModalOpen}
+        onClose={() => {
+          setIsConfirmModalOpen(false);
+        }}
+        onSubmit={() => handleLogout()}
+      />
     </header>
   );
 };

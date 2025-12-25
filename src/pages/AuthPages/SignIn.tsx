@@ -3,20 +3,35 @@ import AuthLayout from "./AuthPageLayout";
 import SignInForm from "../../components/auth/SignInForm";
 import apiClient from "../../api/axiosInstance";
 import { toast } from "react-toastify";
+import { useDispatch } from "react-redux";
+import { loginFailure, loginSuccess } from "../../redux/slices/authSlice";
 
 export default function SignIn() {
+  const dispatch = useDispatch();
 
   const handleSignIn = async (data: { email: string; password: string }) => {
-    console.log('sign in data ===>> ', data)
-
     try {
-      const loginResp = await apiClient.post('/auth/login', data);
+      const loginResp = await apiClient.post("/auth/login", data);
 
-      console.log('response from login API ===>> ', loginResp)
+      const userRole = loginResp?.data?.data?.role;
+
+      if (userRole?.toLowerCase() !== "admin") {
+        toast.error("Access Denied");
+        return;
+      }
+
+      const userData = loginResp?.data?.data;
+      const accessToken = loginResp?.data?.token;
+
+      localStorage.setItem("authToken", accessToken);
+      localStorage.setItem("user", JSON.stringify(userData));
+
+      dispatch(loginSuccess(loginResp?.data?.data));
     } catch (error) {
-      console.log('Error signing in ==>> ', error)
+      console.log("Error signing in ==>> ", error);
+      dispatch(loginFailure(error));
     }
-  }
+  };
 
   return (
     <>
