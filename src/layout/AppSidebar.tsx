@@ -34,6 +34,11 @@ const navItems: NavItem[] = [
   },
   {
     icon: <PackageIcon />,
+    name: "Product Categories",
+    path: "/product-categories",
+  },
+  {
+    icon: <PackageIcon />,
     name: "Products",
     path: "/products",
   },
@@ -377,7 +382,7 @@ const AppSidebar: React.FC = () => {
             </div>
           </div>
         </nav>
-        {isExpanded || isHovered || isMobileOpen ? <SidebarWidget /> : null}
+        {/* {isExpanded || isHovered || isMobileOpen ? <SidebarWidget /> : null} */}
       </div>
     </aside>
   );

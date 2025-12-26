@@ -3,6 +3,7 @@ import PageBreadcrumb from "../../components/common/PageBreadCrumb";
 import PageMeta from "../../components/common/PageMeta";
 import ProductsTable from "./components/ProductsTable";
 import apiClient from "../../api/axiosInstance";
+import Button from "../../components/ui/button/Button";
 
 export default function Products() {
   const [products, setProducts] = useState([]);

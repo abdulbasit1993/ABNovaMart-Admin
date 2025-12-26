@@ -23,6 +23,7 @@ import { Navigate } from "react-router";
 import { ToastContainer, toast } from "react-toastify";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Products from "./pages/Products";
+import ProductCategories from "./pages/ProductCategories";
 
 export default function App() {
   const { isAuthenticated } = useSelector((state) => state.auth);
@@ -56,6 +57,15 @@ export default function App() {
                 element={
                   <ProtectedRoute>
                     <Home />
+                  </ProtectedRoute>
+                }
+              />
+
+              <Route
+                path="/product-categories"
+                element={
+                  <ProtectedRoute>
+                    <ProductCategories />
                   </ProtectedRoute>
                 }
               />
