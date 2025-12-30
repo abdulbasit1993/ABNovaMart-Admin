@@ -10,13 +10,18 @@ export default function SignIn() {
   const dispatch = useDispatch();
 
   const handleSignIn = async (data: { email: string; password: string }) => {
+    if (!data.email || !data.password) {
+      toast.error("Please fill all the required fields");
+      return;
+    }
+
     try {
       const loginResp = await apiClient.post("/auth/login", data);
 
       const userRole = loginResp?.data?.data?.role;
 
       if (userRole?.toLowerCase() !== "admin") {
-        toast.error("Access Denied");
+        dispatch(loginFailure("Access Denied: Only admins can log in."));
         return;
       }
 
@@ -26,10 +31,12 @@ export default function SignIn() {
       localStorage.setItem("authToken", accessToken);
       localStorage.setItem("user", JSON.stringify(userData));
 
-      dispatch(loginSuccess(loginResp?.data?.data));
+      dispatch(loginSuccess(userData));
     } catch (error) {
-      console.log("Error signing in ==>> ", error);
-      dispatch(loginFailure(error));
+      const message =
+        typeof error === "string" ? error : "Login failed. Please try again.";
+      console.log("Error signing in ==>> ", message);
+      dispatch(loginFailure(message));
     }
   };
 

@@ -1,30 +1,105 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import PageBreadcrumb from "../../components/common/PageBreadCrumb";
 import PageMeta from "../../components/common/PageMeta";
-import BasicTableOne from "../../components/tables/BasicTables/BasicTableOne";
-// import ProductsTable from "./components/ProductsTable";
 import apiClient from "../../api/axiosInstance";
 import Button from "../../components/ui/button/Button";
 import AddProductCategoryModal from "./components/AddProductCategoryModal";
 import ProductCategoryTable from "./components/ProductCategoryTable";
+import { toast } from "react-toastify";
+
+interface Category {
+  id: string;
+  name: string;
+  slug: string;
+  parent: { name: string } | null;
+  created_at: string;
+}
+
+interface CategoryFormData {
+  name: string;
+  slug: string;
+  isSubcategory: boolean;
+  parentCategory: string | null;
+}
 
 export default function ProductCategories() {
-  const [productCategories, setProductCategories] = useState([]);
+  const [productCategories, setProductCategories] = useState<Category[]>([]);
   const [showAddProductCategoryModal, setShowAddProductCategoryModal] =
     useState(false);
 
-  useEffect(() => {
-    const fetchCategories = async () => {
-      try {
-        const response = await apiClient.get("/product-categories");
-        // Handle the case where the data might be nested in response.data.data
-        const data = response.data?.data || response.data || [];
-        setProductCategories(Array.isArray(data) ? data : []);
-      } catch (error) {
-        console.error("Error fetching categories:", error);
-        setProductCategories([]);
+  const fetchCategories = async () => {
+    try {
+      const response = await apiClient.get("/product-categories");
+      const data = response.data?.data || response.data || [];
+      setProductCategories(Array.isArray(data) ? data : []);
+    } catch (error) {
+      console.error("Error fetching categories:", error);
+      setProductCategories([]);
+    }
+  };
+
+  const handleAddProductCategory = async (data: CategoryFormData) => {
+    if (!data.name || !data.slug) {
+      toast.error("Please fill all the required fields");
+      return;
+    }
+
+    try {
+      const payload: any = {
+        name: data.name,
+        slug: data.slug,
+      };
+
+      if (data.isSubcategory && data.parentCategory) {
+        payload.parentId = data.parentCategory;
       }
-    };
+
+      const response = await apiClient.post("/product-categories/add", payload);
+
+      if (response?.data?.success) {
+        toast.success(
+          response?.data?.message || "Category added successfully."
+        );
+        setShowAddProductCategoryModal(false);
+        fetchCategories();
+      } else {
+        toast.error(response?.data?.message || "Failed to add category.");
+      }
+    } catch (error: any) {
+      console.error("Error adding product category:", error);
+      toast.error(
+        error?.response?.data?.message ||
+        "An error occurred while adding the category."
+      );
+    }
+  };
+
+  const handleDelete = async (category) => {
+    try {
+      const response = await apiClient.delete(
+        `/product-categories/${category?.id}`
+      );
+
+      console.log("response data delete category ===>>> ", response.data);
+
+      if (response?.data?.success) {
+        toast.success(
+          response?.data?.message || "Category deleted successfully."
+        );
+        fetchCategories();
+      } else {
+        toast.error(response?.data?.message || "Failed to delete category.");
+      }
+    } catch (error) {
+      console.error("Error deleting product category:", error);
+      toast.error(
+        error?.response?.data?.message ||
+        "An error occurred while deleting the category."
+      );
+    }
+  };
+
+  useEffect(() => {
     fetchCategories();
   }, []);
 
@@ -60,15 +135,17 @@ export default function ProductCategories() {
           </Button>
         </div>
 
-        <ProductCategoryTable data={productCategories} />
+        <ProductCategoryTable
+          data={productCategories}
+          onDelete={handleDelete}
+        />
       </div>
 
       <AddProductCategoryModal
         isOpen={showAddProductCategoryModal}
         closeModal={() => setShowAddProductCategoryModal(false)}
-        onSubmit={(data) => {
-          console.log("add product category data ===>> ", data);
-        }}
+        onSubmit={handleAddProductCategory}
+        categories={productCategories}
       />
     </div>
   );

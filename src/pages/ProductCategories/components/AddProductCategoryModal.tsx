@@ -1,35 +1,21 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { Modal } from "../../../components/ui/modal";
 import Label from "../../../components/form/Label";
 import Input from "../../../components/form/input/InputField";
 import Button from "../../../components/ui/button/Button";
 import Checkbox from "../../../components/form/input/Checkbox";
 import Select from "../../../components/form/Select";
-import apiClient from "../../../api/axiosInstance";
 
-function AddProductCategoryModal({ isOpen, closeModal, onSubmit }: any) {
+function AddProductCategoryModal({
+  isOpen,
+  closeModal,
+  onSubmit,
+  categories,
+}: any) {
   const [name, setName] = useState("");
   const [slug, setSlug] = useState("");
   const [isSubcategory, setIsSubcategory] = useState(false);
   const [parentCategoryId, setParentCategoryId] = useState("");
-  const [categories, setCategories] = useState<any[]>([]);
-
-  useEffect(() => {
-    if (isOpen) {
-      const fetchCategories = async () => {
-        try {
-          const response = await apiClient.get("/product-categories");
-          // Handle the case where the data might be nested in response.data.data
-          const data = response.data?.data || response.data || [];
-          setCategories(Array.isArray(data) ? data : []);
-        } catch (error) {
-          console.error("Error fetching categories:", error);
-          setCategories([]);
-        }
-      };
-      fetchCategories();
-    }
-  }, [isOpen]);
 
   const handleAdd = (e: React.FormEvent) => {
     e.preventDefault();

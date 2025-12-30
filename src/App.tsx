@@ -20,13 +20,14 @@ import { ScrollToTop } from "./components/common/ScrollToTop";
 import Home from "./pages/Dashboard/Home";
 import { useSelector } from "react-redux";
 import { Navigate } from "react-router";
-import { ToastContainer, toast } from "react-toastify";
+import { ToastContainer } from "react-toastify";
+import { RootState } from "./redux/store";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Products from "./pages/Products";
 import ProductCategories from "./pages/ProductCategories";
 
 export default function App() {
-  const { isAuthenticated } = useSelector((state) => state.auth);
+  const { isAuthenticated } = useSelector((state: RootState) => state.auth);
 
   return (
     <>
@@ -111,7 +112,7 @@ export default function App() {
         </Routes>
       </Router>
 
-      <ToastContainer />
+      <ToastContainer style={{ zIndex: 999999 }} />
     </>
   );
 }
