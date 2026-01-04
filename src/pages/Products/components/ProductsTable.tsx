@@ -6,18 +6,9 @@ import {
   TableRow,
 } from "../../../components/ui/table";
 import Badge from "../../../components/ui/badge/Badge";
+import { Product } from "..";
 
-interface Product {
-  id: string | number;
-  name: string;
-  price: string | number;
-  category: {
-    name: string;
-  };
-  stock: string | number;
-  isActive: boolean;
-  images?: string[];
-}
+
 
 interface ProductsTableProps {
   data: Product[];

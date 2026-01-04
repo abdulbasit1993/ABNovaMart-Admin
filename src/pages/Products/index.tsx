@@ -5,11 +5,34 @@ import ProductsTable from "./components/ProductsTable";
 import apiClient from "../../api/axiosInstance";
 import Button from "../../components/ui/button/Button";
 import AddProductModal from "./components/AddProductModal";
+import { toast } from "react-toastify";
+
+export interface Category {
+  id?: string;
+  _id?: string;
+  name: string;
+  parent?: {
+    name: string;
+  };
+}
+
+export interface Product {
+  id: string | number;
+  name: string;
+  price: string | number;
+  category: {
+    name: string;
+  };
+  stock: string | number;
+  isActive: boolean;
+  images?: string[];
+}
 
 export default function Products() {
-  const [products, setProducts] = useState([]);
+  const [products, setProducts] = useState<Product[]>([]);
   const [showAddProductModal, setShowAddProductModal] =
     useState(false);
+  const [categories, setCategories] = useState<Category[]>([]);
 
   const getProductsList = async () => {
     try {
@@ -21,12 +44,59 @@ export default function Products() {
     }
   };
 
+  const fetchCategories = async () => {
+    try {
+      const response = await apiClient.get("/product-categories");
+      const data = response.data?.data || response.data || [];
+      setCategories(Array.isArray(data) ? data : []);
+    } catch (error) {
+      console.error("Error fetching categories:", error);
+      setCategories([]);
+    }
+  };
   const handleAddProduct = async (_data: any) => {
+    const formData = new FormData();
 
-  }
+    // Append text fields with fallbacks
+    formData.append("name", _data.name || "");
+    formData.append("description", _data.description || "");
+    formData.append("price", _data.price || "0");
+    formData.append("sku", _data.sku || "");
+    formData.append("stock", _data.stock || "0");
+    formData.append("categoryId", _data.categoryId || "");
+
+    // Robust image handling: Only append if it's a non-empty array
+    if (Array.isArray(_data.images) && _data.images.length > 0) {
+      _data.images.forEach((image: File) => {
+        formData.append("images", image);
+      });
+    }
+
+    try {
+      const response = await apiClient.post("/products", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
+
+      if (response?.status === 201 || response?.status === 200) {
+        toast.success("Product added successfully");
+        setShowAddProductModal(false);
+        getProductsList();
+      } else {
+        toast.error("Failed to add product");
+      }
+    } catch (error: any) {
+      console.error("Error adding product:", error);
+      toast.error(
+        error?.response?.data?.message || "An error occurred while adding product"
+      );
+    }
+  };
 
   useEffect(() => {
     getProductsList();
+    fetchCategories();
   }, []);
 
   return (
@@ -37,15 +107,6 @@ export default function Products() {
       />
       <PageBreadcrumb pageTitle="Products" />
       <div className="min-h-screen rounded-2xl border border-gray-200 bg-white px-5 py-7 dark:border-gray-800 dark:bg-white/[0.03] xl:px-10 xl:py-12">
-        {/* <div className="mx-auto w-full max-w-[630px] text-center"> */}
-        {/* <h3 className="mb-4 font-semibold text-gray-800 text-theme-xl dark:text-white/90 sm:text-2xl">
-            Card Title Here
-          </h3> */}
-
-        {/* <p className="text-sm text-gray-500 dark:text-gray-400 sm:text-base">
-            Start putting content on grids or panels, you can also use different
-            combinations of grids.Please check out the dashboard and other pages
-          </p> */}
 
         <div className="flex items-center justify-end mb-8">
           <Button
@@ -59,14 +120,13 @@ export default function Products() {
         </div>
 
         <ProductsTable data={products} />
-        {/* </div> */}
       </div>
 
       <AddProductModal
         isOpen={showAddProductModal}
         closeModal={() => setShowAddProductModal(false)}
         onSubmit={handleAddProduct}
-        categories={products}
+        categories={categories}
       />
     </div>
   );
