@@ -1,13 +1,13 @@
 import { useState } from "react";
 import { Link } from "react-router";
-import { ChevronLeftIcon, EyeCloseIcon, EyeIcon } from "../../icons";
+import { EyeCloseIcon, EyeIcon } from "../../icons";
 import Label from "../form/Label";
 import Input from "../form/input/InputField";
 import Checkbox from "../form/input/Checkbox";
 import Button from "../ui/button/Button";
 
 interface SignInFormProps {
-  onSubmit: () => void
+  onSubmit: (data: { email: string; password: string }) => void
 }
 
 export default function SignInForm({ onSubmit }: SignInFormProps) {
@@ -16,8 +16,8 @@ export default function SignInForm({ onSubmit }: SignInFormProps) {
   const [showPassword, setShowPassword] = useState(false);
   const [isChecked, setIsChecked] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSubmit = (e?: React.FormEvent | React.MouseEvent) => {
+    e?.preventDefault();
 
     onSubmit({ email, password });
   }
@@ -142,7 +142,7 @@ export default function SignInForm({ onSubmit }: SignInFormProps) {
                   </Link>
                 </div>
                 <div>
-                  <Button className="w-full" size="sm" onClick={handleSubmit}>
+                  <Button className="w-full" size="sm" onClick={handleSubmit} type="button">
                     Sign in
                   </Button>
                 </div>

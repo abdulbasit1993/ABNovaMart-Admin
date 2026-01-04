@@ -1,12 +1,15 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import PageBreadcrumb from "../../components/common/PageBreadCrumb";
 import PageMeta from "../../components/common/PageMeta";
 import ProductsTable from "./components/ProductsTable";
 import apiClient from "../../api/axiosInstance";
 import Button from "../../components/ui/button/Button";
+import AddProductModal from "./components/AddProductModal";
 
 export default function Products() {
   const [products, setProducts] = useState([]);
+  const [showAddProductModal, setShowAddProductModal] =
+    useState(false);
 
   const getProductsList = async () => {
     try {
@@ -17,6 +20,10 @@ export default function Products() {
       console.log("Error getting products list: ", error);
     }
   };
+
+  const handleAddProduct = async (_data: any) => {
+
+  }
 
   useEffect(() => {
     getProductsList();
@@ -40,9 +47,27 @@ export default function Products() {
             combinations of grids.Please check out the dashboard and other pages
           </p> */}
 
+        <div className="flex items-center justify-end mb-8">
+          <Button
+            size="sm"
+            onClick={() => {
+              setShowAddProductModal(true);
+            }}
+          >
+            Add Product
+          </Button>
+        </div>
+
         <ProductsTable data={products} />
         {/* </div> */}
       </div>
+
+      <AddProductModal
+        isOpen={showAddProductModal}
+        closeModal={() => setShowAddProductModal(false)}
+        onSubmit={handleAddProduct}
+        categories={products}
+      />
     </div>
   );
 }

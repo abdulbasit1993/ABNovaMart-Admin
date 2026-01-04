@@ -74,7 +74,7 @@ export default function ProductCategories() {
     }
   };
 
-  const handleDelete = async (category) => {
+  const handleDelete = async (category: Category) => {
     try {
       const response = await apiClient.delete(
         `/product-categories/${category?.id}`
@@ -90,7 +90,7 @@ export default function ProductCategories() {
       } else {
         toast.error(response?.data?.message || "Failed to delete category.");
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error deleting product category:", error);
       toast.error(
         error?.response?.data?.message ||

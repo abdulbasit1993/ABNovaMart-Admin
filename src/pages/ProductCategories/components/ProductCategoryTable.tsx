@@ -1,4 +1,6 @@
-import React, { useState } from "react";
+import { Eye, SquarePen, Trash2 } from "lucide-react";
+import moment from "moment";
+import { useState } from "react";
 import {
   Table,
   TableBody,
@@ -6,20 +8,30 @@ import {
   TableHeader,
   TableRow,
 } from "../../../components/ui/table";
-import Badge from "../../../components/ui/badge/Badge";
-import moment from "moment";
-import { Eye, Trash2, SquarePen } from "lucide-react";
 import ConfirmDeleteModal from "./ConfirmDeleteModal";
 
-export default function ProductCategoryTable(props) {
+interface Category {
+  id: string;
+  name: string;
+  slug: string;
+  parent: { name: string } | null;
+  created_at: string;
+}
+
+interface ProductCategoryTableProps {
+  data: Category[];
+  onDelete: (category: Category) => void;
+}
+
+export default function ProductCategoryTable(props: ProductCategoryTableProps) {
   const { data, onDelete } = props;
 
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-  const [selectedCategory, setSelectedCategory] = useState(null);
+  const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
 
   console.log("data (ProductCategoryTable) ===>> ", data);
 
-  const openDeleteModal = (category) => {
+  const openDeleteModal = (category: Category) => {
     setSelectedCategory(category);
     setIsDeleteModalOpen(true);
   };
@@ -78,7 +90,7 @@ export default function ProductCategoryTable(props) {
 
           {/* Table Body */}
           <TableBody className="divide-y divide-gray-100 dark:divide-white/[0.05]">
-            {data?.map((cat, index) => (
+            {data?.map((cat) => (
               <TableRow key={cat.id}>
                 <TableCell className="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400">
                   {cat.name}
