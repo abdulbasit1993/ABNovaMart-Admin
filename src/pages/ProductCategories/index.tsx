@@ -6,6 +6,7 @@ import Button from "../../components/ui/button/Button";
 import AddProductCategoryModal from "./components/AddProductCategoryModal";
 import ProductCategoryTable from "./components/ProductCategoryTable";
 import { toast } from "react-toastify";
+import EditProductCategoryModal from "./components/EditProductCategoryModal";
 
 interface Category {
   id: string;
@@ -26,6 +27,9 @@ export default function ProductCategories() {
   const [productCategories, setProductCategories] = useState<Category[]>([]);
   const [showAddProductCategoryModal, setShowAddProductCategoryModal] =
     useState(false);
+  const [showEditProductCategoryModal, setShowEditProductCategoryModal] =
+    useState(false);
+  const [editingCategory, setEditingCategory] = useState<Category | null>(null);
 
   const fetchCategories = async () => {
     try {
@@ -73,6 +77,46 @@ export default function ProductCategories() {
       );
     }
   };
+
+  const handleUpdateProductCategory = async (data: CategoryFormData) => {
+    try {
+      const payload = {
+        name: data.name,
+        slug: data.slug,
+      }
+
+      if (data.isSubcategory && data.parentCategory) {
+        payload.parentId = data.parentCategory;
+      }
+
+      const response = await apiClient.put(
+        `/product-categories/${editingCategory?.id}`,
+        payload
+      );
+
+      if (response?.data?.success) {
+        toast.success(
+          response?.data?.message || "Category updated successfully."
+        );
+        setShowEditProductCategoryModal(false);
+        fetchCategories();
+      } else {
+        toast.error(response?.data?.message || "Failed to update category.");
+      }
+    } catch (error) {
+
+      console.error("Error updating product category:", error);
+      toast.error(
+        error?.response?.data?.message ||
+        "An error occurred while updating the category."
+      );
+    }
+  }
+
+  const handleShowEditProductCategoryModal = (category: Category) => {
+    setEditingCategory(category);
+    setShowEditProductCategoryModal(true);
+  }
 
   const handleDelete = async (category: Category) => {
     try {
@@ -138,6 +182,7 @@ export default function ProductCategories() {
         <ProductCategoryTable
           data={productCategories}
           onDelete={handleDelete}
+          onEdit={handleShowEditProductCategoryModal}
         />
       </div>
 
@@ -146,6 +191,14 @@ export default function ProductCategories() {
         closeModal={() => setShowAddProductCategoryModal(false)}
         onSubmit={handleAddProductCategory}
         categories={productCategories}
+      />
+
+      <EditProductCategoryModal
+        isOpen={showEditProductCategoryModal}
+        closeModal={() => setShowEditProductCategoryModal(false)}
+        onSubmit={handleUpdateProductCategory}
+        categories={productCategories}
+        data={editingCategory}
       />
     </div>
   );

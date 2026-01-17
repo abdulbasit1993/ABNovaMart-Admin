@@ -21,10 +21,11 @@ interface Category {
 interface ProductCategoryTableProps {
   data: Category[];
   onDelete: (category: Category) => void;
+  onEdit?: (category: Category) => void;
 }
 
 export default function ProductCategoryTable(props: ProductCategoryTableProps) {
-  const { data, onDelete } = props;
+  const { data, onDelete, onEdit } = props;
 
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
@@ -125,7 +126,11 @@ export default function ProductCategoryTable(props: ProductCategoryTableProps) {
 
                     {/* Edit Button */}
                     <div className="relative flex flex-col items-center group">
-                      <button className="p-1">
+                      <button className="p-1" onClick={() => {
+                        if (onEdit) {
+                          onEdit(cat);
+                        }
+                      }}>
                         <SquarePen className="hover:text-gray-900 dark:hover:text-white" />
                       </button>
                       <div className="absolute top-full mt-2 hidden group-hover:flex flex-col items-center z-50">
