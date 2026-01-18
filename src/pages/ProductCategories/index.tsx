@@ -88,7 +88,7 @@ export default function ProductCategories() {
 
   const handleUpdateProductCategory = async (data: CategoryFormData) => {
     try {
-      const payload = {
+      const payload: any = {
         name: data.name,
         slug: data.slug,
       }
@@ -111,7 +111,7 @@ export default function ProductCategories() {
       } else {
         toast.error(response?.data?.message || "Failed to update category.");
       }
-    } catch (error) {
+    } catch (error: any) {
 
       console.error("Error updating product category:", error);
       toast.error(
