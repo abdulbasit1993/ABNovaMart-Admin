@@ -5,8 +5,9 @@ import apiClient from "../../api/axiosInstance";
 import Button from "../../components/ui/button/Button";
 import AddProductCategoryModal from "./components/AddProductCategoryModal";
 import ProductCategoryTable from "./components/ProductCategoryTable";
-import { toast } from "react-toastify";
 import EditProductCategoryModal from "./components/EditProductCategoryModal";
+import ProductCategoryDetailModal from "./components/ProductCategoryDetailModal";
+import { toast } from "react-toastify";
 
 interface Category {
   id: string;
@@ -29,9 +30,14 @@ export default function ProductCategories() {
     useState(false);
   const [showEditProductCategoryModal, setShowEditProductCategoryModal] =
     useState(false);
+   const [showProductCategoryDetailModal, setShowProductCategoryDetailModal] =
+    useState(false);
   const [editingCategory, setEditingCategory] = useState<Category | null>(null);
+  const [detailCategory, setDetailCategory] = useState<Category | null>(null);
+  const [loading, setLoading] = useState<boolean>(false);
 
   const fetchCategories = async () => {
+    setLoading(true);
     try {
       const response = await apiClient.get("/product-categories");
       const data = response.data?.data || response.data || [];
@@ -39,6 +45,8 @@ export default function ProductCategories() {
     } catch (error) {
       console.error("Error fetching categories:", error);
       setProductCategories([]);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -118,6 +126,11 @@ export default function ProductCategories() {
     setShowEditProductCategoryModal(true);
   }
 
+  const handleShowProductCategoryDetailModal = (category: Category) => {
+    setDetailCategory(category);
+    setShowProductCategoryDetailModal(true);
+  }
+
   const handleDelete = async (category: Category) => {
     try {
       const response = await apiClient.delete(
@@ -183,6 +196,8 @@ export default function ProductCategories() {
           data={productCategories}
           onDelete={handleDelete}
           onEdit={handleShowEditProductCategoryModal}
+          onViewDetail={handleShowProductCategoryDetailModal}
+          loading={loading}
         />
       </div>
 
@@ -199,6 +214,12 @@ export default function ProductCategories() {
         onSubmit={handleUpdateProductCategory}
         categories={productCategories}
         data={editingCategory}
+      />
+
+      <ProductCategoryDetailModal
+        isOpen={showProductCategoryDetailModal}
+        onClose={() => setShowProductCategoryDetailModal(false)}
+        data={detailCategory}
       />
     </div>
   );

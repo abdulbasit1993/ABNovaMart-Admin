@@ -33,14 +33,18 @@ export default function Products() {
   const [showAddProductModal, setShowAddProductModal] =
     useState(false);
   const [categories, setCategories] = useState<Category[]>([]);
+  const [loading, setLoading] = useState<boolean>(false);
 
   const getProductsList = async () => {
+    setLoading(true);
     try {
       const resp = await apiClient.get("/products");
 
       setProducts(resp?.data?.data);
     } catch (error) {
       console.log("Error getting products list: ", error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -119,7 +123,7 @@ export default function Products() {
           </Button>
         </div>
 
-        <ProductsTable data={products} />
+        <ProductsTable data={products} loading={loading} />
       </div>
 
       <AddProductModal

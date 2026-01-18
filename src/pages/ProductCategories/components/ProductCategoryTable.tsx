@@ -9,6 +9,7 @@ import {
   TableRow,
 } from "../../../components/ui/table";
 import ConfirmDeleteModal from "./ConfirmDeleteModal";
+import Loader from "../../../components/ui/loader";
 
 interface Category {
   id: string;
@@ -22,15 +23,15 @@ interface ProductCategoryTableProps {
   data: Category[];
   onDelete: (category: Category) => void;
   onEdit?: (category: Category) => void;
+  onViewDetail?: (category: Category) => void;
+  loading?: boolean;
 }
 
 export default function ProductCategoryTable(props: ProductCategoryTableProps) {
-  const { data, onDelete, onEdit } = props;
+  const { data, onDelete, onEdit, onViewDetail, loading = false } = props;
 
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
-
-  console.log("data (ProductCategoryTable) ===>> ", data);
 
   const openDeleteModal = (category: Category) => {
     setSelectedCategory(category);
@@ -48,6 +49,14 @@ export default function ProductCategoryTable(props: ProductCategoryTableProps) {
     }
     closeDeleteModal();
   };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <Loader />
+      </div>
+    );
+  }
 
   return (
     <div className="overflow-hidden rounded-xl border border-gray-200 bg-white dark:border-white/[0.05] dark:bg-white/[0.03]">
@@ -113,7 +122,12 @@ export default function ProductCategoryTable(props: ProductCategoryTableProps) {
                   <div className="flex space-x-3 flex-row">
                     {/* View Button */}
                     <div className="relative flex flex-col items-center group">
-                      <button className="p-1">
+                      <button className="p-1" onClick={() => {
+                        // pass callback to parent to open detail modal
+                        if (onViewDetail) {
+                          onViewDetail(cat);
+                        }
+                      }}>
                         <Eye className="hover:text-gray-900 dark:hover:text-white" />
                       </button>
                       <div className="absolute top-full mt-2 hidden group-hover:flex flex-col items-center z-50">
