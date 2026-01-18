@@ -145,6 +145,7 @@ function AddProductModal({
                   <Select
                     options={categoryOptions}
                     placeholder="Select Product Category"
+                    value={parentCategoryId}
                     onChange={setParentCategoryId}
                   />
                 </div>

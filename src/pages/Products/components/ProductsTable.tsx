@@ -7,17 +7,27 @@ import {
 } from "../../../components/ui/table";
 import Badge from "../../../components/ui/badge/Badge";
 import { Product } from "..";
+import Loader from "../../../components/ui/loader";
 
 
 
 interface ProductsTableProps {
   data: Product[];
+  loading?: boolean;
 }
 
 export default function ProductsTable(props: ProductsTableProps) {
-  const { data } = props;
+  const { data, loading = false } = props;
 
   console.log("data for product table: ", data);
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <Loader />
+      </div>
+    );
+  }
 
   return (
     <div className="overflow-hidden rounded-xl border border-gray-200 bg-white dark:border-white/[0.05] dark:bg-white/[0.03]">
