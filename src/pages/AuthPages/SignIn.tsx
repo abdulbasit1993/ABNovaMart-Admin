@@ -1,3 +1,4 @@
+import { useState } from "react";
 import PageMeta from "../../components/common/PageMeta";
 import AuthLayout from "./AuthPageLayout";
 import SignInForm from "../../components/auth/SignInForm";
@@ -8,6 +9,7 @@ import { loginFailure, loginSuccess } from "../../redux/slices/authSlice";
 
 export default function SignIn() {
   const dispatch = useDispatch();
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleSignIn = async (data: { email: string; password: string }) => {
     if (!data.email || !data.password) {
@@ -15,18 +17,23 @@ export default function SignIn() {
       return;
     }
 
+    setIsLoading(true);
+
     try {
       const loginResp = await apiClient.post("/auth/login", data);
 
-      const userRole = loginResp?.data?.data?.role;
+      const respData = loginResp?.data;
+
+      const userRole = respData?.user?.role;
 
       if (userRole?.toLowerCase() !== "admin") {
         dispatch(loginFailure("Access Denied: Only admins can log in."));
+        setIsLoading(false);
         return;
       }
 
-      const userData = loginResp?.data?.data;
-      const accessToken = loginResp?.data?.token;
+      const userData = respData?.user;
+      const accessToken = respData?.token;
 
       localStorage.setItem("authToken", accessToken);
       localStorage.setItem("user", JSON.stringify(userData));
@@ -37,6 +44,8 @@ export default function SignIn() {
         typeof error === "string" ? error : "Login failed. Please try again.";
       console.log("Error signing in ==>> ", message);
       dispatch(loginFailure(message));
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -47,7 +56,7 @@ export default function SignIn() {
         description="This is React.js SignIn Tables Dashboard page for TailAdmin - React.js Tailwind CSS Admin Dashboard Template"
       />
       <AuthLayout>
-        <SignInForm onSubmit={handleSignIn} />
+        <SignInForm onSubmit={handleSignIn} isLoading={isLoading} />
       </AuthLayout>
     </>
   );

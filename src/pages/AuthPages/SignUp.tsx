@@ -1,3 +1,4 @@
+import { useState } from "react";
 import PageMeta from "../../components/common/PageMeta";
 import AuthLayout from "./AuthPageLayout";
 import SignUpForm from "../../components/auth/SignUpForm";
@@ -8,6 +9,7 @@ import { toast } from "react-toastify";
 
 export default function SignUp() {
   const dispatch = useDispatch();
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleSignUp = async (data: {
     email: string;
@@ -17,8 +19,6 @@ export default function SignUp() {
     lastName: string;
     phone: string;
   }) => {
-    console.log("sign up data ====>> ", data);
-
     const { email, password, confirmPassword, firstName, lastName, phone } =
       data;
 
@@ -32,6 +32,8 @@ export default function SignUp() {
       return;
     }
 
+    setIsLoading(true);
+
     try {
       const payload = {
         email,
@@ -44,20 +46,34 @@ export default function SignUp() {
 
       const signupResp = await apiClient.post("/auth/register", payload);
 
-      console.log("response data sign up ===>>> ", signupResp);
+      const respData = signupResp?.data;
 
-      const userData = signupResp?.data?.data;
-      const accessToken = signupResp?.data?.token;
+      const userData = respData?.user;
+      const accessToken = respData?.token;
 
       localStorage.setItem("authToken", accessToken);
       localStorage.setItem("user", JSON.stringify(userData));
 
-      dispatch(loginSuccess(signupResp?.data?.data));
+      dispatch(loginSuccess(userData));
 
-      toast.success(signupResp?.data?.message || "Sign up successful!");
-    } catch (error) {
+      toast.success(respData?.message || "Sign up successful!");
+    } catch (error: any) {
       console.log("Error signing up ==>> ", error);
+
+      // Extract validation errors from the response
+      const errorData = error.response?.data;
+      if (errorData?.errors && Array.isArray(errorData.errors)) {
+        // Combine all errors into a single message
+        const combinedError = errorData.errors.join("\n");
+        toast.error(combinedError);
+      } else {
+        // Fallback to generic error message
+        toast.error(errorData?.message || "An error occurred during sign up");
+      }
+
       dispatch(loginFailure(error));
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -68,7 +84,7 @@ export default function SignUp() {
         description="This is React.js SignUp Tables Dashboard page for TailAdmin - React.js Tailwind CSS Admin Dashboard Template"
       />
       <AuthLayout>
-        <SignUpForm onSubmit={handleSignUp} />
+        <SignUpForm onSubmit={handleSignUp} isLoading={isLoading} />
       </AuthLayout>
     </>
   );

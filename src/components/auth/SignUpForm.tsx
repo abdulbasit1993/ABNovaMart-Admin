@@ -3,6 +3,7 @@ import { Link } from "react-router";
 import { EyeCloseIcon, EyeIcon } from "../../icons";
 import Label from "../form/Label";
 import Input from "../form/input/InputField";
+import Button from "../ui/button/Button";
 
 interface SignUpFormProps {
   onSubmit: (data: {
@@ -13,9 +14,13 @@ interface SignUpFormProps {
     lastName: string;
     phone: string;
   }) => void;
+  isLoading?: boolean;
 }
 
-export default function SignUpForm({ onSubmit }: SignUpFormProps) {
+export default function SignUpForm({
+  onSubmit,
+  isLoading = false,
+}: SignUpFormProps) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -25,8 +30,8 @@ export default function SignUpForm({ onSubmit }: SignUpFormProps) {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfPassword, setShowConfPassword] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSubmit = (e?: React.MouseEvent<HTMLButtonElement>) => {
+    e?.preventDefault();
 
     onSubmit({ email, password, confirmPassword, firstName, lastName, phone });
   };
@@ -160,12 +165,15 @@ export default function SignUpForm({ onSubmit }: SignUpFormProps) {
 
                 {/* <!-- Button --> */}
                 <div>
-                  <button
-                    className="flex items-center justify-center w-full px-4 py-3 text-sm font-medium text-white transition rounded-lg bg-brand-500 shadow-theme-xs hover:bg-brand-600"
+                  <Button
+                    className="w-full"
+                    size="sm"
                     onClick={handleSubmit}
+                    type="button"
+                    loading={isLoading}
                   >
                     Sign Up
-                  </button>
+                  </Button>
                 </div>
               </div>
             </form>
