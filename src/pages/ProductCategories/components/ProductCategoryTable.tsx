@@ -31,7 +31,9 @@ export default function ProductCategoryTable(props: ProductCategoryTableProps) {
   const { data, onDelete, onEdit, onViewDetail, loading = false } = props;
 
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-  const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
+  const [selectedCategory, setSelectedCategory] = useState<Category | null>(
+    null,
+  );
 
   const openDeleteModal = (category: Category) => {
     setSelectedCategory(category);
@@ -122,12 +124,15 @@ export default function ProductCategoryTable(props: ProductCategoryTableProps) {
                   <div className="flex space-x-3 flex-row">
                     {/* View Button */}
                     <div className="relative flex flex-col items-center group">
-                      <button className="p-1" onClick={() => {
-                        // pass callback to parent to open detail modal
-                        if (onViewDetail) {
-                          onViewDetail(cat);
-                        }
-                      }}>
+                      <button
+                        className="p-1"
+                        onClick={() => {
+                          // pass callback to parent to open detail modal
+                          if (onViewDetail) {
+                            onViewDetail(cat);
+                          }
+                        }}
+                      >
                         <Eye className="hover:text-gray-900 dark:hover:text-white" />
                       </button>
                       <div className="absolute top-full mt-2 hidden group-hover:flex flex-col items-center z-50">
@@ -140,11 +145,14 @@ export default function ProductCategoryTable(props: ProductCategoryTableProps) {
 
                     {/* Edit Button */}
                     <div className="relative flex flex-col items-center group">
-                      <button className="p-1" onClick={() => {
-                        if (onEdit) {
-                          onEdit(cat);
-                        }
-                      }}>
+                      <button
+                        className="p-1"
+                        onClick={() => {
+                          if (onEdit) {
+                            onEdit(cat);
+                          }
+                        }}
+                      >
                         <SquarePen className="hover:text-gray-900 dark:hover:text-white" />
                       </button>
                       <div className="absolute top-full mt-2 hidden group-hover:flex flex-col items-center z-50">
