@@ -39,11 +39,21 @@ export default function SignIn() {
       localStorage.setItem("user", JSON.stringify(userData));
 
       dispatch(loginSuccess(userData));
-    } catch (error) {
-      const message =
-        typeof error === "string" ? error : "Login failed. Please try again.";
-      console.log("Error signing in ==>> ", message);
-      dispatch(loginFailure(message));
+    } catch (error: any) {
+      console.log("Error signing in ==>> ", error);
+
+      // Extract validation errors from the response
+      const errorData = error.response?.data;
+      if (errorData?.errors && Array.isArray(errorData.errors)) {
+        // Combine all errors into a single message
+        const combinedError = errorData.errors.join("\n");
+        toast.error(combinedError);
+      } else {
+        // Fallback to generic error message
+        toast.error(errorData?.message || "Login failed. Please try again.");
+      }
+
+      dispatch(loginFailure(error));
     } finally {
       setIsLoading(false);
     }
