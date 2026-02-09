@@ -39,8 +39,6 @@ export default function Products() {
     try {
       const resp = await apiClient.get("/products");
 
-      console.log("Products list response: ", resp);
-
       // Extract products from response.data.data.data
       const productsData = resp?.data?.data || [];
 
@@ -132,6 +130,30 @@ export default function Products() {
     }
   };
 
+  const handleDeleteProduct = async (product: Product) => {
+    try {
+      const response = await apiClient.delete(`/products/${product.id}`);
+
+      if (response?.status === 200 || response?.status === 201) {
+        toast.success("Product deleted successfully");
+        getProductsList();
+      } else {
+        toast.error("Failed to delete product");
+      }
+    } catch (error: any) {
+      console.error("Error deleting product:", error);
+      toast.error(
+        error?.response?.data?.message ||
+          "An error occurred while deleting product",
+      );
+    }
+  };
+
+  const handleEditProduct = (product: Product) => {
+    console.log("Edit product:", product);
+    // TODO: Implement edit functionality
+  };
+
   useEffect(() => {
     getProductsList();
     fetchCategories();
@@ -156,7 +178,12 @@ export default function Products() {
           </Button>
         </div>
 
-        <ProductsTable data={products} loading={loading} />
+        <ProductsTable
+          data={products}
+          loading={loading}
+          onDelete={handleDeleteProduct}
+          onEdit={handleEditProduct}
+        />
       </div>
 
       <AddProductModal

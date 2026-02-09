@@ -1,3 +1,5 @@
+import { Eye, SquarePen, Trash2 } from "lucide-react";
+import { useState } from "react";
 import {
   Table,
   TableBody,
@@ -8,18 +10,50 @@ import {
 import Badge from "../../../components/ui/badge/Badge";
 import { Product } from "..";
 import Loader from "../../../components/ui/loader";
-
-
+import ConfirmDeleteModal from "../../ProductCategories/components/ConfirmDeleteModal";
+import ProductDetailModal from "./ProductDetailModal";
 
 interface ProductsTableProps {
   data: Product[];
+  onDelete: (product: Product) => void;
+  onEdit?: (product: Product) => void;
   loading?: boolean;
 }
 
 export default function ProductsTable(props: ProductsTableProps) {
-  const { data, loading = false } = props;
+  const { data, onDelete, onEdit, loading = false } = props;
 
-  console.log("data for product table: ", data);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+
+  console.log("ProductsTable data: ", data);
+
+  const openDeleteModal = (product: Product) => {
+    setSelectedProduct(product);
+    setIsDeleteModalOpen(true);
+  };
+
+  const openDetailModal = (product: Product) => {
+    setSelectedProduct(product);
+    setIsDetailModalOpen(true);
+  };
+
+  const closeDeleteModal = () => {
+    setSelectedProduct(null);
+    setIsDeleteModalOpen(false);
+  };
+
+  const closeDetailModal = () => {
+    setIsDetailModalOpen(false);
+  };
+
+  const handleConfirmDelete = () => {
+    if (selectedProduct && onDelete) {
+      onDelete(selectedProduct);
+    }
+    closeDeleteModal();
+  };
 
   if (loading) {
     return (
@@ -36,6 +70,12 @@ export default function ProductsTable(props: ProductsTableProps) {
           {/* Table Header */}
           <TableHeader className="border-b border-gray-100 dark:border-white/[0.05]">
             <TableRow>
+              <TableCell
+                isHeader
+                className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
+              >
+                Image
+              </TableCell>
               <TableCell
                 isHeader
                 className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
@@ -66,13 +106,19 @@ export default function ProductsTable(props: ProductsTableProps) {
               >
                 Status
               </TableCell>
+              <TableCell
+                isHeader
+                className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
+              >
+                Actions
+              </TableCell>
             </TableRow>
           </TableHeader>
 
           {/* Table Body */}
           <TableBody className="divide-y divide-gray-100 dark:divide-white/[0.05]">
             {data?.map((product) => {
-              // const images = product?.images;
+              const { images } = product;
               const {
                 name,
                 price,
@@ -83,6 +129,24 @@ export default function ProductsTable(props: ProductsTableProps) {
 
               return (
                 <TableRow key={product.id}>
+                  <TableCell className="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400">
+                    <div className="w-10 h-10 overflow-hidden rounded-lg">
+                      {images && images.length > 0 ? (
+                        <img
+                          width={40}
+                          height={40}
+                          src={images[0]}
+                          alt={name}
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <div className="w-full h-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center">
+                          <span className="text-xs text-gray-500">No img</span>
+                        </div>
+                      )}
+                    </div>
+                  </TableCell>
+
                   <TableCell className="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400">
                     {name}
                   </TableCell>
@@ -103,6 +167,66 @@ export default function ProductsTable(props: ProductsTableProps) {
                     <Badge size="sm" color={isActive ? "success" : "warning"}>
                       {isActive ? "Active" : "Inactive"}
                     </Badge>
+                  </TableCell>
+
+                  <TableCell className="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400 overflow-visible">
+                    <div className="flex space-x-3 flex-row">
+                      {/* View Button */}
+                      <div className="relative flex flex-col items-center group">
+                        <button
+                          className="p-1"
+                          onClick={() => {
+                            openDetailModal(product);
+                          }}
+                        >
+                          <Eye className="hover:text-gray-900 dark:hover:text-white" />
+                        </button>
+                        <div className="fixed hidden group-hover:flex flex-col items-center z-50 mt-8">
+                          <div className="w-3 h-3 -mb-2 rotate-45 bg-gray-800"></div>
+                          <span className="relative p-2 text-xs leading-none text-white whitespace-no-wrap bg-gray-800 shadow-lg rounded-md">
+                            View Details
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Edit Button */}
+                      <div className="relative flex flex-col items-center group">
+                        <button
+                          className="p-1"
+                          onClick={() => {
+                            if (onEdit) {
+                              onEdit(product);
+                            }
+                          }}
+                        >
+                          <SquarePen className="hover:text-gray-900 dark:hover:text-white" />
+                        </button>
+                        <div className="fixed hidden group-hover:flex flex-col items-center z-50 mt-8">
+                          <div className="w-3 h-3 -mb-2 rotate-45 bg-gray-800"></div>
+                          <span className="relative p-2 text-xs leading-none text-white whitespace-no-wrap bg-gray-800 shadow-lg rounded-md">
+                            Edit
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Delete Button */}
+                      <div className="relative flex flex-col items-center group">
+                        <button
+                          className="p-1"
+                          onClick={() => {
+                            openDeleteModal(product);
+                          }}
+                        >
+                          <Trash2 className="hover:text-gray-900 dark:hover:text-white" />
+                        </button>
+                        <div className="fixed hidden group-hover:flex flex-col items-center z-50 mt-8">
+                          <div className="w-3 h-3 -mb-2 rotate-45 bg-gray-800"></div>
+                          <span className="relative p-2 text-xs leading-none text-white whitespace-no-wrap bg-gray-800 shadow-lg rounded-md">
+                            Delete
+                          </span>
+                        </div>
+                      </div>
+                    </div>
                   </TableCell>
                 </TableRow>
               );
@@ -172,6 +296,20 @@ export default function ProductsTable(props: ProductsTableProps) {
           </TableBody>
         </Table>
       </div>
+
+      <ConfirmDeleteModal
+        isOpen={isDeleteModalOpen}
+        onClose={closeDeleteModal}
+        onConfirm={handleConfirmDelete}
+        title="Confirm Delete"
+        message="Are you sure you want to delete this product?"
+      />
+
+      <ProductDetailModal
+        isOpen={isDetailModalOpen}
+        onClose={closeDetailModal}
+        product={selectedProduct}
+      />
     </div>
   );
 }

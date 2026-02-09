@@ -183,7 +183,6 @@ export default function ProductCategories() {
       try {
         const response = await apiClient.get("/product-categories");
 
-        console.log("Fetched categories response ===>>>>> ", response);
         // Extract categories from response.data.data.categories
         const categories = response?.data?.categories || [];
         // Map _id to id for consistency with the component
