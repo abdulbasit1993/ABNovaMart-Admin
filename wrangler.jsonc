@@ -1,5 +1,5 @@
 {
-    "name": "ab-nova-mart-admin",
+    "name": "abnovamart-admin",
     "compatibility_date": "2026-01-04",
     "assets": {
         "directory": "./dist"
