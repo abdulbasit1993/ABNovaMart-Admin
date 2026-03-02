@@ -95,22 +95,6 @@ export default function ProductCategories() {
             };
           })
         : [];
-
-
-      // Extract categories from response.data.data.categories
-      const categories = response?.data?.categories || [];
-
-      // Map _id to id for consistency with the component
-      const mappedCategories = Array.isArray(categories)
-        ? categories.map((cat: any) => ({
-            id: cat._id,
-            name: cat.name,
-            slug: cat.slug,
-            parent: cat.parent || null,
-            created_at: cat.created_at,
-            updated_at: cat.updated_at,
-          }))
-        : [];
       setProductCategories(mappedCategories);
     } catch (error) {
       console.error("Error fetching categories:", error);
@@ -288,18 +272,6 @@ export default function ProductCategories() {
                 updated_at: cat.updated_at,
               };
             })
-        // Extract categories from response.data.data.categories
-        const categories = response?.data?.categories || [];
-        // Map _id to id for consistency with the component
-        const mappedCategories = Array.isArray(categories)
-          ? categories.map((cat: any) => ({
-              id: cat._id,
-              name: cat.name,
-              slug: cat.slug,
-              parent: cat.parent || null,
-              created_at: cat.created_at,
-              updated_at: cat.updated_at,
-            }))
           : [];
 
         if (isMounted) {
