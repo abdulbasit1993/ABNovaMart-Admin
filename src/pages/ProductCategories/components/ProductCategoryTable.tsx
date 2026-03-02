@@ -15,13 +15,13 @@ interface Category {
   id: string;
   name: string;
   slug: string;
-  parent: { name: string } | null;
+  parent: { id: string; name: string; slug: string } | null;
   created_at: string;
 }
 
 interface ProductCategoryTableProps {
   data: Category[];
-  onDelete: (category: Category) => void;
+  onDelete: (category: Category) => void | Promise<void>;
   onEdit?: (category: Category) => void;
   onViewDetail?: (category: Category) => void;
   loading?: boolean;
