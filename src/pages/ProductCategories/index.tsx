@@ -13,8 +13,11 @@ interface Category {
   id: string;
   name: string;
   slug: string;
-  parent: { name: string } | null;
+  parent: { id: string; name: string; slug: string } | null;
+  children?: { id: string; name: string; slug: string }[];
+  parentId?: string | null;
   created_at: string;
+  updated_at?: string;
 }
 
 interface CategoryFormData {
@@ -30,7 +33,7 @@ export default function ProductCategories() {
     useState(false);
   const [showEditProductCategoryModal, setShowEditProductCategoryModal] =
     useState(false);
-   const [showProductCategoryDetailModal, setShowProductCategoryDetailModal] =
+  const [showProductCategoryDetailModal, setShowProductCategoryDetailModal] =
     useState(false);
   const [editingCategory, setEditingCategory] = useState<Category | null>(null);
   const [detailCategory, setDetailCategory] = useState<Category | null>(null);
@@ -42,6 +45,58 @@ export default function ProductCategories() {
       const response = await apiClient.get("/product-categories");
       const data = response.data?.data || response.data || [];
       setProductCategories(Array.isArray(data) ? data : []);
+
+      const categories = response?.data?.categories || [];
+
+      const categoriesById = new Map<string, any>();
+      if (Array.isArray(categories)) {
+        categories.forEach((cat: any) => {
+          categoriesById.set(cat._id, cat);
+        });
+      }
+
+      const childrenByParentId = new Map<string, any[]>();
+      if (Array.isArray(categories)) {
+        categories.forEach((cat: any) => {
+          if (cat.parentId) {
+            const existing = childrenByParentId.get(cat.parentId) || [];
+            existing.push(cat);
+            childrenByParentId.set(cat.parentId, existing);
+          }
+        });
+      }
+
+      const mappedCategories: Category[] = Array.isArray(categories)
+        ? categories.map((cat: any) => {
+            const parentCat = cat.parentId
+              ? categoriesById.get(cat.parentId)
+              : null;
+            const children = childrenByParentId.get(cat._id) || [];
+
+            return {
+              id: cat._id,
+              name: cat.name,
+              slug: cat.slug,
+              parent: parentCat
+                ? {
+                    id: parentCat._id,
+                    name: parentCat.name,
+                    slug: parentCat.slug,
+                  }
+                : null,
+              children: children.map((child: any) => ({
+                id: child._id,
+                name: child.name,
+                slug: child.slug,
+              })),
+              parentId: cat.parentId || null,
+              created_at: cat.created_at,
+              updated_at: cat.updated_at,
+            };
+          })
+        : [];
+
+      setProductCategories(mappedCategories);
     } catch (error) {
       console.error("Error fetching categories:", error);
       setProductCategories([]);
@@ -70,7 +125,7 @@ export default function ProductCategories() {
 
       if (response?.data?.success) {
         toast.success(
-          response?.data?.message || "Category added successfully."
+          response?.data?.message || "Category added successfully.",
         );
         setShowAddProductCategoryModal(false);
         fetchCategories();
@@ -81,7 +136,7 @@ export default function ProductCategories() {
       console.error("Error adding product category:", error);
       toast.error(
         error?.response?.data?.message ||
-        "An error occurred while adding the category."
+          "An error occurred while adding the category.",
       );
     }
   };
@@ -91,7 +146,7 @@ export default function ProductCategories() {
       const payload: any = {
         name: data.name,
         slug: data.slug,
-      }
+      };
 
       if (data.isSubcategory && data.parentCategory) {
         payload.parentId = data.parentCategory;
@@ -99,12 +154,12 @@ export default function ProductCategories() {
 
       const response = await apiClient.put(
         `/product-categories/${editingCategory?.id}`,
-        payload
+        payload,
       );
 
       if (response?.data?.success) {
         toast.success(
-          response?.data?.message || "Category updated successfully."
+          response?.data?.message || "Category updated successfully.",
         );
         setShowEditProductCategoryModal(false);
         fetchCategories();
@@ -112,36 +167,35 @@ export default function ProductCategories() {
         toast.error(response?.data?.message || "Failed to update category.");
       }
     } catch (error: any) {
-
       console.error("Error updating product category:", error);
       toast.error(
         error?.response?.data?.message ||
-        "An error occurred while updating the category."
+          "An error occurred while updating the category.",
       );
     }
-  }
+  };
 
   const handleShowEditProductCategoryModal = (category: Category) => {
     setEditingCategory(category);
     setShowEditProductCategoryModal(true);
-  }
+  };
 
   const handleShowProductCategoryDetailModal = (category: Category) => {
     setDetailCategory(category);
     setShowProductCategoryDetailModal(true);
-  }
+  };
 
   const handleDelete = async (category: Category) => {
     try {
       const response = await apiClient.delete(
-        `/product-categories/${category?.id}`
+        `/product-categories/${category?.id}`,
       );
 
       console.log("response data delete category ===>>> ", response.data);
 
       if (response?.data?.success) {
         toast.success(
-          response?.data?.message || "Category deleted successfully."
+          response?.data?.message || "Category deleted successfully.",
         );
         fetchCategories();
       } else {
@@ -151,13 +205,90 @@ export default function ProductCategories() {
       console.error("Error deleting product category:", error);
       toast.error(
         error?.response?.data?.message ||
-        "An error occurred while deleting the category."
+          "An error occurred while deleting the category.",
       );
     }
   };
 
   useEffect(() => {
     fetchCategories();
+    let isMounted = true;
+
+    const loadCategories = async () => {
+      setLoading(true);
+      try {
+        const response = await apiClient.get("/product-categories");
+
+        const categories = response?.data?.categories || [];
+
+        const categoriesById = new Map<string, any>();
+        if (Array.isArray(categories)) {
+          categories.forEach((cat: any) => {
+            categoriesById.set(cat._id, cat);
+          });
+        }
+
+        const childrenByParentId = new Map<string, any[]>();
+        if (Array.isArray(categories)) {
+          categories.forEach((cat: any) => {
+            if (cat.parentId) {
+              const existing = childrenByParentId.get(cat.parentId) || [];
+              existing.push(cat);
+              childrenByParentId.set(cat.parentId, existing);
+            }
+          });
+        }
+
+        const mappedCategories: Category[] = Array.isArray(categories)
+          ? categories.map((cat: any) => {
+              const parentCat = cat.parentId
+                ? categoriesById.get(cat.parentId)
+                : null;
+              const children = childrenByParentId.get(cat._id) || [];
+
+              return {
+                id: cat._id,
+                name: cat.name,
+                slug: cat.slug,
+                parent: parentCat
+                  ? {
+                      id: parentCat._id,
+                      name: parentCat.name,
+                      slug: parentCat.slug,
+                    }
+                  : null,
+                children: children.map((child: any) => ({
+                  id: child._id,
+                  name: child.name,
+                  slug: child.slug,
+                })),
+                parentId: cat.parentId || null,
+                created_at: cat.created_at,
+                updated_at: cat.updated_at,
+              };
+            })
+          : [];
+
+        if (isMounted) {
+          setProductCategories(mappedCategories);
+        }
+      } catch (error) {
+        console.error("Error fetching categories:", error);
+        if (isMounted) {
+          setProductCategories([]);
+        }
+      } finally {
+        if (isMounted) {
+          setLoading(false);
+        }
+      }
+    };
+
+    loadCategories();
+
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   return (
