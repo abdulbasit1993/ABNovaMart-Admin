@@ -21,7 +21,7 @@ apiClient.interceptors.request.use(
   },
   (error) => {
     return Promise.reject(error);
-  }
+  },
 );
 
 apiClient.interceptors.response.use(
@@ -43,28 +43,16 @@ apiClient.interceptors.response.use(
       }
     }
 
-    let errorMessage = "An unexpected error occurred";
-
-    if (error.response) {
-      errorMessage =
-        error.response.data?.message ||
-        error.response.statusText ||
-        errorMessage;
-    } else if (error.request) {
-      errorMessage =
+    // Only show toast for network errors or non-API errors
+    // API errors (4xx, 5xx with response) are handled by individual components
+    if (!error.response) {
+      let errorMessage =
         "Unable to connect to the server. Please check your internet connection or try again later.";
-    } else {
-      errorMessage = error.message || errorMessage;
+      toast.error(errorMessage);
     }
 
-    const finalMessage = Array.isArray(errorMessage)
-      ? errorMessage[0]
-      : errorMessage;
-
-    toast.error(finalMessage);
-
     return Promise.reject(error);
-  }
+  },
 );
 
 export default apiClient;
