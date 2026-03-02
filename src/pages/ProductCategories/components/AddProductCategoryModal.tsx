@@ -16,27 +16,46 @@ function AddProductCategoryModal({
   const [slug, setSlug] = useState("");
   const [isSubcategory, setIsSubcategory] = useState(false);
   const [parentCategoryId, setParentCategoryId] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handleAdd = (e: React.FormEvent) => {
+  const handleAdd = async (e: React.FormEvent) => {
     e.preventDefault();
-    onSubmit({
-      name,
-      slug,
-      isSubcategory,
-      parentCategory: isSubcategory ? parentCategoryId : null,
-    });
+
+    if (isLoading) return;
+
+    setIsLoading(true);
+
+    try {
+      await onSubmit({
+        name,
+        slug,
+        isSubcategory,
+        parentCategory: isSubcategory ? parentCategoryId : null,
+      });
+
+      // Only close modal on successful submission
+      resetForm();
+      closeModal();
+    } catch (error) {
+      // Error handling is done in the parent component
+      // Modal stays open on error
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const resetForm = () => {
     setName("");
     setSlug("");
     setIsSubcategory(false);
     setParentCategoryId("");
-    closeModal();
   };
 
   const categoryOptions = Array.isArray(categories)
     ? categories.map((cat: any) => ({
-      value: cat.id || cat._id,
-      label: cat.parent ? `${cat.parent.name} > ${cat.name}` : cat.name,
-    }))
+        value: cat.id || cat._id,
+        label: cat.parent ? `${cat.parent.name} > ${cat.name}` : cat.name,
+      }))
     : [];
 
   return (
@@ -102,6 +121,7 @@ function AddProductCategoryModal({
               className="w-full"
               variant="primary"
               type="submit"
+              loading={isLoading}
             >
               Add Category
             </Button>
@@ -113,4 +133,3 @@ function AddProductCategoryModal({
 }
 
 export default AddProductCategoryModal;
-

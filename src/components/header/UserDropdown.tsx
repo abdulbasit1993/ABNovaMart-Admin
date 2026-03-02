@@ -15,10 +15,6 @@ export default function UserDropdown({ onLogout }: UserDropdownProps) {
 
   const userData = user ? JSON.parse(user) : null;
 
-  console.log("User data (UserDropdown) ===>> ", userData);
-
-
-
   function toggleDropdown() {
     setIsOpen(!isOpen);
   }
@@ -41,8 +37,9 @@ export default function UserDropdown({ onLogout }: UserDropdownProps) {
           {userData?.firstName}
         </span>
         <svg
-          className={`stroke-gray-500 dark:stroke-gray-400 transition-transform duration-200 ${isOpen ? "rotate-180" : ""
-            }`}
+          className={`stroke-gray-500 dark:stroke-gray-400 transition-transform duration-200 ${
+            isOpen ? "rotate-180" : ""
+          }`}
           width="18"
           height="20"
           viewBox="0 0 18 20"

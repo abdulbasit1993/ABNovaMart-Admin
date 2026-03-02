@@ -30,8 +30,7 @@ export interface Product {
 
 export default function Products() {
   const [products, setProducts] = useState<Product[]>([]);
-  const [showAddProductModal, setShowAddProductModal] =
-    useState(false);
+  const [showAddProductModal, setShowAddProductModal] = useState(false);
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
 
@@ -40,7 +39,23 @@ export default function Products() {
     try {
       const resp = await apiClient.get("/products");
 
-      setProducts(resp?.data?.data);
+      // Extract products from response.data.data.data
+      const productsData = resp?.data?.data || [];
+
+      // Map products to include category name
+      const mappedProducts = Array.isArray(productsData)
+        ? productsData.map((product: any) => ({
+            id: product._id,
+            name: product.name,
+            price: product.price?.$numberDecimal || product.price,
+            category: { name: "Category" }, // Placeholder - backend doesn't return category name
+            stock: product.stock,
+            isActive: product.isActive,
+            images: product.images,
+          }))
+        : [];
+
+      setProducts(mappedProducts);
     } catch (error) {
       console.log("Error getting products list: ", error);
     } finally {
@@ -52,7 +67,23 @@ export default function Products() {
     try {
       const response = await apiClient.get("/product-categories");
       const data = response.data?.data || response.data || [];
-      setCategories(Array.isArray(data) ? data : []);
+
+      // Extract categories from response.data.data.categories
+      const categories = data?.categories || data || [];
+
+      // Map _id to id for consistency with the component
+      const mappedCategories = Array.isArray(categories)
+        ? categories.map((cat: any) => ({
+            id: cat._id,
+            name: cat.name,
+            slug: cat.slug,
+            parent: cat.parent || null,
+            created_at: cat.created_at,
+            updated_at: cat.updated_at,
+          }))
+        : [];
+
+      setCategories(mappedCategories);
     } catch (error) {
       console.error("Error fetching categories:", error);
       setCategories([]);
@@ -77,7 +108,7 @@ export default function Products() {
     }
 
     try {
-      const response = await apiClient.post("/products", formData, {
+      const response = await apiClient.post("/products/add", formData, {
         headers: {
           "Content-Type": "multipart/form-data",
         },
@@ -93,9 +124,34 @@ export default function Products() {
     } catch (error: any) {
       console.error("Error adding product:", error);
       toast.error(
-        error?.response?.data?.message || "An error occurred while adding product"
+        error?.response?.data?.message ||
+          "An error occurred while adding product",
       );
     }
+  };
+
+  const handleDeleteProduct = async (product: Product) => {
+    try {
+      const response = await apiClient.delete(`/products/${product.id}`);
+
+      if (response?.status === 200 || response?.status === 201) {
+        toast.success("Product deleted successfully");
+        getProductsList();
+      } else {
+        toast.error("Failed to delete product");
+      }
+    } catch (error: any) {
+      console.error("Error deleting product:", error);
+      toast.error(
+        error?.response?.data?.message ||
+          "An error occurred while deleting product",
+      );
+    }
+  };
+
+  const handleEditProduct = (product: Product) => {
+    console.log("Edit product:", product);
+    // TODO: Implement edit functionality
   };
 
   useEffect(() => {
@@ -111,7 +167,6 @@ export default function Products() {
       />
       <PageBreadcrumb pageTitle="Products" />
       <div className="min-h-screen rounded-2xl border border-gray-200 bg-white px-5 py-7 dark:border-gray-800 dark:bg-white/[0.03] xl:px-10 xl:py-12">
-
         <div className="flex items-center justify-end mb-8">
           <Button
             size="sm"
@@ -123,7 +178,12 @@ export default function Products() {
           </Button>
         </div>
 
-        <ProductsTable data={products} loading={loading} />
+        <ProductsTable
+          data={products}
+          loading={loading}
+          onDelete={handleDeleteProduct}
+          onEdit={handleEditProduct}
+        />
       </div>
 
       <AddProductModal

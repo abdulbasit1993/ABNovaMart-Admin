@@ -31,7 +31,9 @@ export default function ProductCategoryTable(props: ProductCategoryTableProps) {
   const { data, onDelete, onEdit, onViewDetail, loading = false } = props;
 
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-  const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
+  const [selectedCategory, setSelectedCategory] = useState<Category | null>(
+    null,
+  );
 
   const openDeleteModal = (category: Category) => {
     setSelectedCategory(category);
@@ -118,19 +120,22 @@ export default function ProductCategoryTable(props: ProductCategoryTableProps) {
                   {moment(cat.created_at).format("DD-MM-YYYY hh:mm a")}
                 </TableCell>
 
-                <TableCell className="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400">
+                <TableCell className="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400 overflow-visible">
                   <div className="flex space-x-3 flex-row">
                     {/* View Button */}
                     <div className="relative flex flex-col items-center group">
-                      <button className="p-1" onClick={() => {
-                        // pass callback to parent to open detail modal
-                        if (onViewDetail) {
-                          onViewDetail(cat);
-                        }
-                      }}>
+                      <button
+                        className="p-1"
+                        onClick={() => {
+                          // pass callback to parent to open detail modal
+                          if (onViewDetail) {
+                            onViewDetail(cat);
+                          }
+                        }}
+                      >
                         <Eye className="hover:text-gray-900 dark:hover:text-white" />
                       </button>
-                      <div className="absolute top-full mt-2 hidden group-hover:flex flex-col items-center z-50">
+                      <div className="fixed hidden group-hover:flex flex-col items-center z-50 mt-8">
                         <div className="w-3 h-3 -mb-2 rotate-45 bg-gray-800"></div>
                         <span className="relative p-2 text-xs leading-none text-white whitespace-no-wrap bg-gray-800 shadow-lg rounded-md">
                           View Details
@@ -140,14 +145,17 @@ export default function ProductCategoryTable(props: ProductCategoryTableProps) {
 
                     {/* Edit Button */}
                     <div className="relative flex flex-col items-center group">
-                      <button className="p-1" onClick={() => {
-                        if (onEdit) {
-                          onEdit(cat);
-                        }
-                      }}>
+                      <button
+                        className="p-1"
+                        onClick={() => {
+                          if (onEdit) {
+                            onEdit(cat);
+                          }
+                        }}
+                      >
                         <SquarePen className="hover:text-gray-900 dark:hover:text-white" />
                       </button>
-                      <div className="absolute top-full mt-2 hidden group-hover:flex flex-col items-center z-50">
+                      <div className="fixed hidden group-hover:flex flex-col items-center z-50 mt-8">
                         <div className="w-3 h-3 -mb-2 rotate-45 bg-gray-800"></div>
                         <span className="relative p-2 text-xs leading-none text-white whitespace-no-wrap bg-gray-800 shadow-lg rounded-md">
                           Edit
@@ -165,7 +173,7 @@ export default function ProductCategoryTable(props: ProductCategoryTableProps) {
                       >
                         <Trash2 className="hover:text-gray-900 dark:hover:text-white" />
                       </button>
-                      <div className="absolute top-full mt-2 hidden group-hover:flex flex-col items-center z-50">
+                      <div className="fixed hidden group-hover:flex flex-col items-center z-50 mt-8">
                         <div className="w-3 h-3 -mb-2 rotate-45 bg-gray-800"></div>
                         <span className="relative p-2 text-xs leading-none text-white whitespace-no-wrap bg-gray-800 shadow-lg rounded-md">
                           Delete
@@ -184,6 +192,8 @@ export default function ProductCategoryTable(props: ProductCategoryTableProps) {
         isOpen={isDeleteModalOpen}
         onClose={closeDeleteModal}
         onConfirm={handleConfirmDelete}
+        title="Confirm Delete"
+        message="Are you sure you want to delete this category?"
       />
     </div>
   );

@@ -15,10 +15,12 @@ function EditProductCategoryModal({
 }: any) {
   const [name, setName] = useState(data?.name || "");
   const [slug, setSlug] = useState(data?.slug || "");
-  const [isSubcategory, setIsSubcategory] = useState(data?.parent ? true : false);
-  const [parentCategoryId, setParentCategoryId] = useState(data?.parent?.id || data?.parent?._id || "");
-
-  console.log("data (EditProductCategoryModal) ===>> ", data);
+  const [isSubcategory, setIsSubcategory] = useState(
+    data?.parent ? true : false,
+  );
+  const [parentCategoryId, setParentCategoryId] = useState(
+    data?.parent?.id || data?.parent?._id || "",
+  );
 
   const handleUpdate = (e: React.FormEvent) => {
     e.preventDefault();
@@ -33,9 +35,9 @@ function EditProductCategoryModal({
 
   const categoryOptions = Array.isArray(categories)
     ? categories.map((cat: any) => ({
-      value: cat.id || cat._id,
-      label: cat.parent ? `${cat.parent.name} > ${cat.name}` : cat.name,
-    }))
+        value: cat.id || cat._id,
+        label: cat.parent ? `${cat.parent.name} > ${cat.name}` : cat.name,
+      }))
     : [];
 
   useEffect(() => {
@@ -121,4 +123,3 @@ function EditProductCategoryModal({
 }
 
 export default EditProductCategoryModal;
-

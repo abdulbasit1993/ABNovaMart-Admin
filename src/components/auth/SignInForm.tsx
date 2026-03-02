@@ -7,12 +7,16 @@ import Checkbox from "../form/input/Checkbox";
 import Button from "../ui/button/Button";
 
 interface SignInFormProps {
-  onSubmit: (data: { email: string; password: string }) => void
+  onSubmit: (data: { email: string; password: string }) => void;
+  isLoading?: boolean;
 }
 
-export default function SignInForm({ onSubmit }: SignInFormProps) {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+export default function SignInForm({
+  onSubmit,
+  isLoading = false,
+}: SignInFormProps) {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [isChecked, setIsChecked] = useState(false);
 
@@ -20,7 +24,7 @@ export default function SignInForm({ onSubmit }: SignInFormProps) {
     e?.preventDefault();
 
     onSubmit({ email, password });
-  }
+  };
 
   return (
     <div className="flex flex-col flex-1">
@@ -102,7 +106,11 @@ export default function SignInForm({ onSubmit }: SignInFormProps) {
                   <Label>
                     Email <span className="text-error-500">*</span>{" "}
                   </Label>
-                  <Input value={email || ''} onChange={(e) => setEmail(e.target.value)} placeholder="info@gmail.com" />
+                  <Input
+                    value={email || ""}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="info@gmail.com"
+                  />
                 </div>
                 <div>
                   <Label>
@@ -111,8 +119,8 @@ export default function SignInForm({ onSubmit }: SignInFormProps) {
                   <div className="relative">
                     <Input
                       type={showPassword ? "text" : "password"}
-                      value={password || ''}
-                      onChange={e => setPassword(e.target.value)}
+                      value={password || ""}
+                      onChange={(e) => setPassword(e.target.value)}
                       placeholder="Enter your password"
                     />
                     <span
@@ -142,7 +150,13 @@ export default function SignInForm({ onSubmit }: SignInFormProps) {
                   </Link>
                 </div>
                 <div>
-                  <Button className="w-full" size="sm" onClick={handleSubmit} type="button">
+                  <Button
+                    className="w-full"
+                    size="sm"
+                    onClick={handleSubmit}
+                    type="button"
+                    loading={isLoading}
+                  >
                     Sign in
                   </Button>
                 </div>
