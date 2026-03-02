@@ -13,8 +13,11 @@ interface Category {
   id: string;
   name: string;
   slug: string;
-  parent: { name: string } | null;
+  parent: { id: string; name: string; slug: string } | null;
+  children?: { id: string; name: string; slug: string }[];
+  parentId?: string | null;
   created_at: string;
+  updated_at?: string;
 }
 
 interface CategoryFormData {
@@ -40,6 +43,59 @@ export default function ProductCategories() {
     setLoading(true);
     try {
       const response = await apiClient.get("/product-categories");
+      const data = response.data?.data || response.data || [];
+      setProductCategories(Array.isArray(data) ? data : []);
+
+      const categories = response?.data?.categories || [];
+
+      const categoriesById = new Map<string, any>();
+      if (Array.isArray(categories)) {
+        categories.forEach((cat: any) => {
+          categoriesById.set(cat._id, cat);
+        });
+      }
+
+      const childrenByParentId = new Map<string, any[]>();
+      if (Array.isArray(categories)) {
+        categories.forEach((cat: any) => {
+          if (cat.parentId) {
+            const existing = childrenByParentId.get(cat.parentId) || [];
+            existing.push(cat);
+            childrenByParentId.set(cat.parentId, existing);
+          }
+        });
+      }
+
+      const mappedCategories: Category[] = Array.isArray(categories)
+        ? categories.map((cat: any) => {
+            const parentCat = cat.parentId
+              ? categoriesById.get(cat.parentId)
+              : null;
+            const children = childrenByParentId.get(cat._id) || [];
+
+            return {
+              id: cat._id,
+              name: cat.name,
+              slug: cat.slug,
+              parent: parentCat
+                ? {
+                    id: parentCat._id,
+                    name: parentCat.name,
+                    slug: parentCat.slug,
+                  }
+                : null,
+              children: children.map((child: any) => ({
+                id: child._id,
+                name: child.name,
+                slug: child.slug,
+              })),
+              parentId: cat.parentId || null,
+              created_at: cat.created_at,
+              updated_at: cat.updated_at,
+            };
+          })
+        : [];
+
 
       // Extract categories from response.data.data.categories
       const categories = response?.data?.categories || [];
@@ -176,6 +232,7 @@ export default function ProductCategories() {
   };
 
   useEffect(() => {
+    fetchCategories();
     let isMounted = true;
 
     const loadCategories = async () => {
@@ -183,6 +240,54 @@ export default function ProductCategories() {
       try {
         const response = await apiClient.get("/product-categories");
 
+        const categories = response?.data?.categories || [];
+
+        const categoriesById = new Map<string, any>();
+        if (Array.isArray(categories)) {
+          categories.forEach((cat: any) => {
+            categoriesById.set(cat._id, cat);
+          });
+        }
+
+        const childrenByParentId = new Map<string, any[]>();
+        if (Array.isArray(categories)) {
+          categories.forEach((cat: any) => {
+            if (cat.parentId) {
+              const existing = childrenByParentId.get(cat.parentId) || [];
+              existing.push(cat);
+              childrenByParentId.set(cat.parentId, existing);
+            }
+          });
+        }
+
+        const mappedCategories: Category[] = Array.isArray(categories)
+          ? categories.map((cat: any) => {
+              const parentCat = cat.parentId
+                ? categoriesById.get(cat.parentId)
+                : null;
+              const children = childrenByParentId.get(cat._id) || [];
+
+              return {
+                id: cat._id,
+                name: cat.name,
+                slug: cat.slug,
+                parent: parentCat
+                  ? {
+                      id: parentCat._id,
+                      name: parentCat.name,
+                      slug: parentCat.slug,
+                    }
+                  : null,
+                children: children.map((child: any) => ({
+                  id: child._id,
+                  name: child.name,
+                  slug: child.slug,
+                })),
+                parentId: cat.parentId || null,
+                created_at: cat.created_at,
+                updated_at: cat.updated_at,
+              };
+            })
         // Extract categories from response.data.data.categories
         const categories = response?.data?.categories || [];
         // Map _id to id for consistency with the component
