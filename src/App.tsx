@@ -25,6 +25,7 @@ import { RootState } from "./redux/store";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Products from "./pages/Products";
 import ProductCategories from "./pages/ProductCategories";
+import Users from "./pages/Users";
 
 export default function App() {
   const { isAuthenticated } = useSelector((state: RootState) => state.auth);
@@ -76,6 +77,15 @@ export default function App() {
                 element={
                   <ProtectedRoute>
                     <Products />
+                  </ProtectedRoute>
+                }
+              />
+
+              <Route
+                path="/users"
+                element={
+                  <ProtectedRoute>
+                    <Users />
                   </ProtectedRoute>
                 }
               />

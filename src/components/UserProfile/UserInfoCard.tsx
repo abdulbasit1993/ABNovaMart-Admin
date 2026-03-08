@@ -5,7 +5,12 @@ import Input from "../form/input/InputField";
 import Label from "../form/Label";
 
 export default function UserInfoCard() {
-  const { isOpen, openModal, closeModal } = useModal();
+  const { isOpen, closeModal } = useModal();
+
+  const user = localStorage.getItem("user");
+
+  const userData = user ? JSON.parse(user) : null;
+
   const handleSave = () => {
     // Handle save logic here
     console.log("Saving changes...");
@@ -25,7 +30,7 @@ export default function UserInfoCard() {
                 First Name
               </p>
               <p className="text-sm font-medium text-gray-800 dark:text-white/90">
-                Musharof
+                {userData?.firstName}
               </p>
             </div>
 
@@ -34,7 +39,7 @@ export default function UserInfoCard() {
                 Last Name
               </p>
               <p className="text-sm font-medium text-gray-800 dark:text-white/90">
-                Chowdhury
+                {userData?.lastName}
               </p>
             </div>
 
@@ -43,7 +48,7 @@ export default function UserInfoCard() {
                 Email address
               </p>
               <p className="text-sm font-medium text-gray-800 dark:text-white/90">
-                randomuser@pimjo.com
+                {userData?.email}
               </p>
             </div>
 
@@ -52,22 +57,22 @@ export default function UserInfoCard() {
                 Phone
               </p>
               <p className="text-sm font-medium text-gray-800 dark:text-white/90">
-                +09 363 398 46
+                {userData?.phone}
               </p>
             </div>
 
             <div>
               <p className="mb-2 text-xs leading-normal text-gray-500 dark:text-gray-400">
-                Bio
+                Role
               </p>
               <p className="text-sm font-medium text-gray-800 dark:text-white/90">
-                Team Manager
+                {userData?.role}
               </p>
             </div>
           </div>
         </div>
 
-        <button
+        {/* <button
           onClick={openModal}
           className="flex w-full items-center justify-center gap-2 rounded-full border border-gray-300 bg-white px-4 py-3 text-sm font-medium text-gray-700 shadow-theme-xs hover:bg-gray-50 hover:text-gray-800 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] dark:hover:text-gray-200 lg:inline-flex lg:w-auto"
         >
@@ -87,7 +92,7 @@ export default function UserInfoCard() {
             />
           </svg>
           Edit
-        </button>
+        </button> */}
       </div>
 
       <Modal isOpen={isOpen} onClose={closeModal} className="max-w-[700px] m-4">
